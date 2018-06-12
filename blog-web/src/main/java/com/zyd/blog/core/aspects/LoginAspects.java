@@ -25,7 +25,9 @@ import com.zyd.blog.business.entity.ArticleLook;
 import com.zyd.blog.business.service.BizArticleLookService;
 import com.zyd.blog.business.service.BizArticleService;
 import com.zyd.blog.framework.holder.RequestHolder;
+import com.zyd.blog.util.CookieUtil;
 import com.zyd.blog.util.IpUtil;
+import com.zyd.blog.util.ResultUtil;
 import com.zyd.blog.util.SessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -66,34 +68,46 @@ public class LoginAspects {
     }
 
     @Before("pointcut()")
-    public void doBefore(JoinPoint joinPoint) throws Throwable {
+    public boolean preHandle(JoinPoint joinPoint) throws Throwable {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-        HttpServletResponse httpServletResponse = attributes.getResponse();
-        String authorization = request.getHeader("Authorization");//获取header中的token并在redis中判断是否之前验证过
-        Boolean flag = false;
-        if(authorization!=null&&!"".equals(authorization)) {
-            flag= redisTemplate.hasKey(authorization);//判断value缓存是否存在
+        System.out.println("url===="+request.getRequestURI());
+        if(!"/login".equals(request.getRequestURI())) {
+            HttpServletResponse httpServletResponse = attributes.getResponse();
+//            String authorization = request.getHeader("Authorization");//获取header中的token并在redis中判断是否之前验证过
+            Boolean flag = false;
+            String authorization = CookieUtil.getValue(request,"inspur_token","");
+            if (authorization != null && !"".equals(authorization)) {
+                flag = redisTemplate.hasKey(authorization);//判断value缓存是否存在
+            }
+            if (flag == false) {
+                if("POST".equalsIgnoreCase(request.getMethod())) {
+                    httpServletResponse.setContentType("application/json;charset=UTF-8");
+                    PrintWriter out = httpServletResponse.getWriter();
+                    ResponseBean responseBean = new ResponseBean(0, "", "");
+                    responseBean.setCode(401);
+                    responseBean.setData("");
+                    responseBean.setMsg("401未授权，请登录后再试");
+                    String jsonString = JSON.toJSONString(responseBean);
+                    out.print(jsonString);
+                    out.print(responseBean.toString());
+                    out.close();
+                }else{
+                    httpServletResponse.sendRedirect(request.getContextPath()+"/login");
+                }
+                return true;
+            }else {
+                return true;
+            }
         }
-        if(flag==false){
-            httpServletResponse.setContentType("application/json;charset=UTF-8");
-            httpServletResponse.setStatus(401);
-            PrintWriter out = httpServletResponse.getWriter();
-            ResponseBean responseBean = new ResponseBean(0,"","");
-            responseBean.setCode(401);
-            responseBean.setData("");
-            responseBean.setMsg("401未授权，请登录后再试");
-            String jsonString = JSON.toJSONString(responseBean);
-            out.print(jsonString);
-            out.print(responseBean.toString());
-            out.close();
-        }
+        return true;
     }
 
-    @AfterReturning(returning = "ret", pointcut = "pointcut()")
-    public void doAfterReturning(Object ret) throws Throwable {
-        // 处理完请求，返回内容
-        System.out.println("reponse=="+ret);
-    }
+//    @AfterReturning(returning = "ret", pointcut = "pointcut()")
+//    public void doAfterReturning(Object ret) throws Throwable {
+//        // 处理完请求，返回内容
+//        System.out.println("reponse=="+ret);
+//    }
+
 }

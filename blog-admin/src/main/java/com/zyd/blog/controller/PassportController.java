@@ -85,7 +85,7 @@ public class PassportController {
         if (subject.isAuthenticated()||subject.isRemembered()){
             return ResultUtil.redirect("/index");
         }
-        model.addAttribute("enableKaptcha", config.getEnableKaptcha());
+        model.addAttribute("enableKaptcha", config .getEnableKaptcha());
         return ResultUtil.view("/login");
     }
 

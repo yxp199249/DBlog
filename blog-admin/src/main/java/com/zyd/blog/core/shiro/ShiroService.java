@@ -87,8 +87,9 @@ public class ShiroService {
         for (Resources resources : resourcesList) {
             if (!StringUtils.isEmpty(resources.getUrl()) && !StringUtils.isEmpty(resources.getPermission())) {
                 String permission = "perms[" + resources.getPermission() + "]";
-                System.out.println("url=="+resources.getUrl()+" permission==="+permission);
-                filterChainDefinitionMap.put(resources.getUrl(), permission);
+//                System.out.println("url=="+resources.getUrl()+" permission==="+permission);
+//                filterChainDefinitionMap.put(resources.getUrl(), permission);
+                filterChainDefinitionMap.put(resources.getUrl(), "anon");
             }
         }
         filterChainDefinitionMap.put("/**", "jwt");

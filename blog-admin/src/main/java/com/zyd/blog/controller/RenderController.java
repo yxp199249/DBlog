@@ -90,7 +90,7 @@ public class RenderController {
     }
 
     @BussinessLog("进入用户列表页")
-    @GetMapping("/users111")
+    @GetMapping("/users")
     public ModelAndView user(HttpServletRequest request) {
         String inspur_token = CookieUtil.getValue(request,"inspur_token","");
         String userName = JWTUtil.getUsername(inspur_token);
@@ -123,7 +123,7 @@ public class RenderController {
     }
 
     @BussinessLog("进入文章列表页")
-    @GetMapping("/articles111")
+    @GetMapping("/articles")
     public ModelAndView articles(HttpServletRequest request) {
         String inspur_token = CookieUtil.getValue(request,"inspur_token","");
         String userName = JWTUtil.getUsername(inspur_token);

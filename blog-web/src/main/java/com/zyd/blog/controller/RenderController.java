@@ -28,6 +28,8 @@ import com.zyd.blog.business.service.SysLinkService;
 import com.zyd.blog.business.service.SysUpdateRecordeService;
 import com.zyd.blog.business.vo.ArticleConditionVO;
 import com.zyd.blog.util.ResultUtil;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,6 +67,8 @@ public class RenderController {
     @Autowired
     private SysUpdateRecordeService updateRecordeService;
 
+
+
     /**
      * 加载首页的数据
      *
@@ -79,7 +83,16 @@ public class RenderController {
         model.addAttribute("model", vo);
         model.addAttribute("indexLinkList", sysLinkService.listOfIndex());
     }
-
+    /**
+     * 跳转登录页
+     *
+     * @param model
+     * @return
+     */
+    @GetMapping("/login")
+    public ModelAndView login(Model model) {
+        return ResultUtil.view("/login");
+    }
     /**
      * 首页
      *
